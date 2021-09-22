@@ -1,169 +1,170 @@
-var display = document.getElementById("screen");
-var buttons = document.getElementsByClassName("button");
-  
-  Array.prototype.forEach.call(buttons, function(button) {
-  button.addEventListener("click", function() {
-    if (button.textContent != "=" && 
-    button.textContent != "AC" && 
-    button.textContent != "*" && 
-    button.textContent != "/" && 
-    button.textContent != "√" && 
-    button.textContent != "+" && 
-    button.textContent != "%" && 
-    button.textContent != "=" && 
-    button.textContent != "-" && 
-    button.textContent != "sin" && 
-    button.textContent != "cos" && 
-    button.textContent != "tan" && 
-    button.textContent != "log" && 
-    button.textContent != "ln" && 
-    button.textContent != "x^" && 
-    button.textContent != "x!" && 
-    button.textContent != "pi" && 
-    button.textContent != "Rad" 
-    && button.textContent != "Deg") {
-      display.value += button.textContent;
-    } else if (button.textContent === "=") {
-      equals();
-    } else if (button.textContent === "AC") {
-      clear();
-    } else if (button.textContent === "*") {
-      multiply();
-    } else if (button.textContent === "/") {
-      divide();
-    } else if (button.textContent === "+") {
-      plus();
-      } else if (button.textContent === "-") {
-      Minus();
-    } else if (button.textContent === "%") {
-      percent();
-    } else if (button.textContent === "pi") {
-      pi();
-    } else if (button.textContent === "√") {
-      squareRoot();
-    } else if (button.textContent === "sin") {
-      sin();
-    } else if (button.textContent === "cos") {
-      cos();
-    } else if (button.textContent === "tan") {
-      tan();
-    } else if (button.textContent === "log") {
-      log();
-    } else if (button.textContent === "ln") {
-      ln();
-    } else if (button.textContent === "x^") {
-      exponent();
-    } else if (button.textContent === "x!") {
-      factorial();
-    } else if (button.textContent === "Rad") {
-      radians();
-    } else if (button.textContent === "Deg") {
-      degrees();
+var mesos = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+];
+
+var dies = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wedensday',
+    'Thursday',
+    'Friday',
+    'Saturday'
+];
+
+var dies_abr = [
+    'Su',
+    'Mo',
+    'Tu',
+    'We',
+    'Th',
+    'Fr',
+    'Sa'
+];
+
+Number.prototype.pad = function(num) {
+    var str = '';
+    for(var i = 0; i < (num-this.toString().length); i++)
+        str += '0';
+    return str += this.toString();
+}
+
+function calendari(widget, data)
+{
+
+    var original = widget.getElementsByClassName('actiu')[0];
+
+    if(typeof original === 'undefined')
+    {
+        original = document.createElement('table');
+        original.setAttribute('data-actual',
+			      data.getFullYear() + '/' +
+			      data.getMonth().pad(2) + '/' +
+			      data.getDate().pad(2))
+        widget.appendChild(original);
     }
-  });
-});
 
+    var diff = data - new Date(original.getAttribute('data-actual'));
 
-function syntaxError() {
-  if (eval(display.value) == SyntaxError || eval(display.value) == ReferenceError || eval(display.value) == TypeError) {
-    display.value == "Syntax Error";
-  }
-}
+    diff = new Date(diff).getMonth();
 
+    var e = document.createElement('table');
 
-function equals() {
-  if ((display.value).indexOf("^") > -1) {
-    var base = (display.value).slice(0, (display.value).indexOf("^"));
-    var exponent = (display.value).slice((display.value).indexOf("^") + 1);
-    display.value = eval("Math.pow(" + base + "," + exponent + ")");
-  } else {
-    display.value = eval(display.value)
-    checkLength()
-    syntaxError()
-  }
-}
+    e.className = diff  === 0 ? 'amagat-esquerra' : 'amagat-dreta';
+    e.innerHTML = '';
 
-function clear() {
-  display.value = "";
-}
+    widget.appendChild(e);
 
+    e.setAttribute('data-actual',
+                   data.getFullYear() + '/' +
+                   data.getMonth().pad(2) + '/' +
+                   data.getDate().pad(2))
 
-function multiply() {
-  display.value += "*";
-}
+    var fila = document.createElement('tr');
+    var titol = document.createElement('th');
+    titol.setAttribute('colspan', 7);
 
-function divide() {
-  display.value +=  "/";
-}
-function plus() {
-  display.value +=  "+";
-}
+    var boto_prev = document.createElement('button');
+    boto_prev.className = 'boto-prev';
+    boto_prev.innerHTML = '&#9666;';
 
-function Minus() {
-  display.value +=  "-";
-}
+    var boto_next = document.createElement('button');
+    boto_next.className = 'boto-next';
+    boto_next.innerHTML = '&#9656;';
 
-function factorial() {
-  var number = 1;
-  if (display.value === 0) {
-    display.value = "1";
-  } else if (display.value < 0) {
-    display.value = "undefined";
-  } else {
-    var number = 1;
-    for (var i = display.value; i > 0; i--) {
-      number *=  i;
+    titol.appendChild(boto_prev);
+    titol.appendChild(document.createElement('span')).innerHTML = 
+        mesos[data.getMonth()] + '<span class="any">' + data.getFullYear() + '</span>';
+
+    titol.appendChild(boto_next);
+
+    boto_prev.onclick = function() {
+        data.setMonth(data.getMonth() - 1);
+        calendari(widget, data);
+    };
+
+    boto_next.onclick = function() {
+        data.setMonth(data.getMonth() + 1);
+        calendari(widget, data);
+    };
+
+    fila.appendChild(titol);
+    e.appendChild(fila);
+
+    fila = document.createElement('tr');
+
+    for(var i = 1; i < 7; i++)
+    {
+        fila.innerHTML += '<th>' + dies_abr[i] + '</th>';
     }
-    display.value = number;
-  }
+
+    fila.innerHTML += '<th>' + dies_abr[0] + '</th>';
+    e.appendChild(fila);
+
+    /* Obtinc el dia que va acabar el mes anterior */
+    var inici_mes =
+        new Date(data.getFullYear(), data.getMonth(), -1).getDay();
+
+    var actual = new Date(data.getFullYear(),
+			  data.getMonth(),
+			  -inici_mes);
+
+    /* 6 setmanes per cobrir totes les posiblitats
+     *  Quedaria mes consistent alhora de mostrar molts mesos 
+     *  en una quadricula */
+    for(var s = 0; s < 6; s++)
+    {
+        var fila = document.createElement('tr');
+
+        for(var d = 1; d < 8; d++)
+        {
+	    var cela = document.createElement('td');
+	    var span = document.createElement('span');
+
+	    cela.appendChild(span);
+
+            span.innerHTML = actual.getDate();
+
+            if(actual.getMonth() !== data.getMonth())
+                cela.className = 'fora';
+
+            /* Si es avui el decorem */
+            if(data.getDate() == actual.getDate() &&
+	       data.getMonth() == actual.getMonth())
+		cela.className = 'avui';
+
+	    actual.setDate(actual.getDate()+1);
+            fila.appendChild(cela);
+        }
+
+        e.appendChild(fila);
+    }
+
+    setTimeout(function() {
+        e.className = 'actiu';
+        original.className +=
+        diff === 0 ? ' amagat-dreta' : ' amagat-esquerra';
+    }, 20);
+
+    original.className = 'inactiu';
+
+    setTimeout(function() {
+        var inactius = document.getElementsByClassName('inactiu');
+        for(var i = 0; i < inactius.length; i++)
+            widget.removeChild(inactius[i]);
+    }, 1000);
+
 }
 
-function pi() {
-  display.value = (display.value * Math.PI);
-}
-
-function square() {
-  display.value = eval(display.value * display.value);
-}
-
-function squareRoot() {
-  display.value = Math.sqrt(display.value);
-}
-
-function percent() {
-  display.value = display.value / 100;
-}
-
-function sin() {
-  display.value = Math.sin(display.value);
-}
-
-	
-function cos() {
-  display.value = Math.cos(display.value);
-}
-
-function tan() {
-  display.value = Math.tan(display.value);
-}
-
-function log() {
-  display.value = Math.log10(display.value);
-}
-
-function ln() {
-  display.value = Math.log(display.value);
-}
-
-function exponent() {
-  display.value += "^";
-}
-
-
-function radians() {
-  display.value = display.value * (Math.PI / 180);
-}
-
-function degrees() {
-  display.value = display.value * (180 / Math.PI);
-}
+calendari(document.getElementById('calendari'), new Date());
